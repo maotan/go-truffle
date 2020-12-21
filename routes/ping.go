@@ -2,7 +2,7 @@ package routes
 
 import (
 	"errors"
-	"go-truffle/truffle"
+	"github.com/maotan/go-truffle/truffle"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

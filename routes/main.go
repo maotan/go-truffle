@@ -3,7 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 
-	"go-truffle/truffle"
+	"github.com/maotan/go-truffle/truffle"
 )
 
 var (
