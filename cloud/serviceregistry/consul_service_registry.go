@@ -150,3 +150,7 @@ func NewConsulServiceRegistry(host string, port int, token string) (*consulServi
 
 	return &consulServiceRegistry{client: *client}, nil
 }
+
+func (c consulServiceRegistry) GetRegistryServices() (map[string]map[string]cloud.ServiceInstance){
+	return c.serviceInstances
+}

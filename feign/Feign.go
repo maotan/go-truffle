@@ -1,6 +1,8 @@
 package feign
 
 import (
+	"fmt"
+	"github.com/maotan/go-truffle/cloud"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
 	"gopkg.in/resty.v1"
 	"log"
@@ -109,7 +111,7 @@ func (t *Feign) App(app string) *resty.Client {
 			return
 		}
 
-		t.updateAppUrlsIntervals()
+		t.updateAppUrlsIntervals(instances)
 	})
 
 	// try update app's urls.
@@ -144,7 +146,7 @@ func (t *Feign) tryRefreshAppUrls(app string) {
 }
 
 // update app urls periodically
-func (t *Feign) updateAppUrlsIntervals() {
+func (t *Feign) updateAppUrlsIntervals(instances []cloud.ServiceInstance) {
 	if t.refreshAppUrlsIntervals <= 0 {
 		t.refreshAppUrlsIntervals = DEFAULT_REFRESH_APP_URLS_INTERVALS
 	}
@@ -165,22 +167,22 @@ func (t *Feign) updateAppUrlsIntervals() {
 
 // Update app urls from registry apps
 func (t *Feign) updateAppUrls() {
-	//registryApps, _ := t.discoveryClient.GetServices()
-	//tmpAppUrls := make(map[string][]string)
+	registryServices, _ := t.discoveryClient.GetRegistryServices()
+	tmpAppUrls := make(map[string][]string)
 
-	/*for _, app := range registryApps {
+	for serviceId, serviceInstMap := range registryServices {
 		var isAppAlreadyExist bool
 		var curAppUrls []string
 		var isUpdate bool
 
 		// if app is already exist in t.appUrls, check whether app's urls are updated.
 		// if app's urls are updated, t.appUrls
-		if curAppUrls, isAppAlreadyExist = t.GetAppUrls(app); isAppAlreadyExist {
-
-			for _, insVo := range appVo.Instances {
+		if curAppUrls, isAppAlreadyExist = t.GetAppUrls(serviceId); isAppAlreadyExist {
+			for _, inst := range serviceInstMap {
 				isExist := false
 				for _, v := range curAppUrls {
-					insHomePageUrl := strings.TrimRight(insVo.HomePageUrl, "/")
+					//insHomePageUrl := strings.TrimRight(inst.GetHost(), "/")
+					insHomePageUrl := fmt.Sprintf("%s:%d/", inst.GetHost(), inst.GetPort())
 					if v == insHomePageUrl {
 						isExist = true
 						break
@@ -196,15 +198,16 @@ func (t *Feign) updateAppUrls() {
 
 		// app are not exist in t.appUrls or app's urls has been update
 		if !isAppAlreadyExist || isUpdate {
-			tmpAppUrls[app] = make([]string, 0)
-			for _, insVo := range appVo.Instances {
-				tmpAppUrls[app] = append(tmpAppUrls[app], strings.TrimRight(insVo.HomePageUrl, "/"))
+			tmpAppUrls[serviceId] = make([]string, 0)
+			for _, insVo := range serviceInstMap {
+				insHomePageUrl := fmt.Sprintf("%s:%d/", insVo.GetHost(), insVo.GetPort())
+				tmpAppUrls[serviceId] = append(tmpAppUrls[serviceId], insHomePageUrl)
 			}
 		}
-	}*/
+	}
 
 	// update app's urls to feign
-	//t.UseUrls(tmpAppUrls)
+	t.UseUrls(tmpAppUrls)
 }
 
 // get app's urls

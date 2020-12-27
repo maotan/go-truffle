@@ -15,4 +15,6 @@ type DiscoveryClient interface {
 	 * @return All known service IDs.
 	 */
 	GetServices() ([]string, error)
+
+	GetRegistryServices() (map[string]map[string]cloud.ServiceInstance, error)
 }
