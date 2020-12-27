@@ -167,7 +167,7 @@ func (t *Feign) updateAppUrlsIntervals(instances []cloud.ServiceInstance) {
 
 // Update app urls from registry apps
 func (t *Feign) updateAppUrls() {
-	registryServices, _ := t.discoveryClient.GetRegistryServices()
+	registryServices := t.discoveryClient.GetRegistryServices()
 	tmpAppUrls := make(map[string][]string)
 
 	for serviceId, serviceInstMap := range registryServices {
