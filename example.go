@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/maotan/go-truffle/cloud"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
+	"github.com/maotan/go-truffle/feign"
 	"github.com/maotan/go-truffle/routes"
 	"github.com/maotan/go-truffle/util"
 	"math/rand"
@@ -14,6 +15,7 @@ func main() {
 	port := 8500
 	token := ""
 	registryDiscoveryClient, err := serviceregistry.NewConsulServiceRegistry(host, port, token)
+	feign.Init(registryDiscoveryClient)
 
 	ip, err := util.GetLocalIP()
 	if err != nil {
