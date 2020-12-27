@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/maotan/go-truffle/cloud"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
 	"github.com/maotan/go-truffle/routes"
@@ -18,17 +17,17 @@ func main() {
 
 	ip, err := util.GetLocalIP()
 	if err != nil {
-		//t.Error(err)
 		panic(err)
 	}
-
-	fmt.Println(ip)
 	rand.Seed(time.Now().UnixNano())
 
-	si, _ := cloud.NewDefaultServiceInstance("go-user-server", "", 8010,
+	si, _ := cloud.NewDefaultServiceInstance("go-user-server", ip, 5000,
 		false, map[string]string{"user": "zyn2"}, "")
 
 	registryDiscoveryClient.Register(si)
 
-	routes.Run()
+	err = routes.Run()
+	if err != nil{
+		registryDiscoveryClient.Deregister()
+	}
 }

@@ -11,16 +11,22 @@ var (
 )
 
 // Run will start the server
-func Run() {
+func Run() error{
 	router.Use(truffle.Recover)
 	getRoutes()
-	router.Run(":5000")
+	return router.Run(":5000")
 }
 
 // getRoutes will create our routes of our entire application
 // this way every group of routes can be defined in their own file
 // so this one won't be so messy
 func getRoutes() {
+	router.GET("/actuator/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+
 	v1 := router.Group("/v1")
 	addUserRoutes(v1)
 	addPingRoutes(v1)
