@@ -16,5 +16,5 @@ type DiscoveryClient interface {
 	 */
 	GetServices() ([]string, error)
 
-	GetRegistryServices() (map[string]map[string]cloud.ServiceInstance, error)
+	GetRegistryServices() map[string]map[string]cloud.ServiceInstance
 }

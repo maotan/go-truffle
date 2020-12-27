@@ -21,7 +21,7 @@ var DefaultFeign = &Feign{
 }
 
 func Init(discoveryClient serviceregistry.DiscoveryClient){
-	DefaultFeign.discoveryClient = discoveryClient;
+	DefaultFeign.discoveryClient = discoveryClient
 }
 
 

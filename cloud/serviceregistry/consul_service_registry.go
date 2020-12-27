@@ -45,6 +45,10 @@ func (c consulServiceRegistry) GetServices() ([]string, error) {
 	return result, nil
 }
 
+func (c consulServiceRegistry) GetRegistryServices() map[string]map[string]cloud.ServiceInstance {
+	return c.serviceInstances
+}
+
 func (c consulServiceRegistry) Register(serviceInstance cloud.ServiceInstance) bool {
 	// 创建注册到consul的服务到
 	registration := new(api.AgentServiceRegistration)
@@ -151,6 +155,4 @@ func NewConsulServiceRegistry(host string, port int, token string) (*consulServi
 	return &consulServiceRegistry{client: *client}, nil
 }
 
-func (c consulServiceRegistry) GetRegistryServices() (map[string]map[string]cloud.ServiceInstance){
-	return c.serviceInstances
-}
+
