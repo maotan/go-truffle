@@ -15,7 +15,7 @@ type consulServiceRegistry struct {
 	localServiceInstance cloud.ServiceInstance
 }
 
-func (c consulServiceRegistry) GetInstances(serviceId string) ([]cloud.ServiceInstance, error) {
+func (c *consulServiceRegistry) GetInstances(serviceId string) ([]cloud.ServiceInstance, error) {
 	catalogService, _, _ := c.client.Catalog().Service(serviceId, "", nil)
 	if len(catalogService) > 0 {
 		result := make([]cloud.ServiceInstance, len(catalogService))
@@ -33,8 +33,33 @@ func (c consulServiceRegistry) GetInstances(serviceId string) ([]cloud.ServiceIn
 	}
 	return nil, nil
 }
+/** 所有注册的服务实例 */
+/*func (c *consulServiceRegistry) GetAllRegistryInstances() (map[string][]cloud.ServiceInstance, error) {
+	catalogService, _, _ := c.client.Catalog().Service("go-user-server", "", nil)
+	catalogService, _, _ = c.client.Catalog().Service("", "", nil)
+	if len(catalogService) > 0 {
+		result := make(map[string][]cloud.ServiceInstance)
+		for _, sever := range catalogService {
+			s := cloud.DefaultServiceInstance{
+				InstanceId: sever.ServiceID,
+				ServiceId:  sever.ServiceName,
+				Host:       sever.Address,
+				Port:       sever.ServicePort,
+				Metadata:   sever.ServiceMeta,
+			}
+			if value, ok := result[sever.ServiceName]; ok {
+				value = append(value, s)
+			} else {
+				l := make([]cloud.ServiceInstance, 5)
+				l = append(l, s)
+			}
+		}
+		return result, nil
+	}
+	return nil, nil
+}*/
 
-func (c consulServiceRegistry) GetServices() ([]string, error) {
+func (c *consulServiceRegistry) GetServices() ([]string, error) {
 	services, _, _ := c.client.Catalog().Services(nil)
 	result := make([]string, unsafe.Sizeof(services))
 	index := 0
@@ -45,12 +70,11 @@ func (c consulServiceRegistry) GetServices() ([]string, error) {
 	return result, nil
 }
 
-
-func (c consulServiceRegistry) GetRegistryServices() map[string]map[string]cloud.ServiceInstance {
+/*func (c *consulServiceRegistry) GetRegistryServices() map[string]map[string]cloud.ServiceInstance {
 	return c.serviceInstances
-}
+}*/
 
-func (c consulServiceRegistry) Register(serviceInstance cloud.ServiceInstance) bool {
+func (c *consulServiceRegistry) Register(serviceInstance cloud.ServiceInstance) bool {
 	// 创建注册到consul的服务到
 	registration := new(api.AgentServiceRegistration)
 	registration.ID = serviceInstance.GetInstanceId()
@@ -112,7 +136,7 @@ func (c consulServiceRegistry) Register(serviceInstance cloud.ServiceInstance) b
 }
 
 // deregister a service
-func (c consulServiceRegistry) Deregister() {
+func (c *consulServiceRegistry) Deregister() {
 	if c.serviceInstances == nil {
 		return
 	}

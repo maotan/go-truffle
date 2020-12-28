@@ -2,9 +2,8 @@ package feign
 
 import (
 	"fmt"
-	"github.com/maotan/go-truffle/cloud"
+	"github.com/go-resty/resty/v2"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
-	"gopkg.in/resty.v1"
 	"log"
 	"net/url"
 	"sync"
@@ -16,7 +15,7 @@ const (
 )
 
 var DefaultFeign = &Feign{
-	appUrls:         make(map[string][]string),
+	appUrlMap:       make(map[string][]string),
 	appNextUrlIndex: make(map[string]*uint32),
 }
 
@@ -30,7 +29,7 @@ type Feign struct {
 	discoveryClient serviceregistry.DiscoveryClient
 
 	// assign app => urls
-	appUrls map[string][]string
+	appUrlMap map[string][]string
 
 	// Counter for calculate next url'index
 	appNextUrlIndex map[string]*uint32
@@ -51,38 +50,32 @@ func (t *Feign) UseDiscoveryClient(client serviceregistry.DiscoveryClient) *Feig
 }
 
 // assign static app => urls
-func (t *Feign) UseUrls(appUrls map[string][]string) *Feign {
+func (t *Feign) UseUrls(serviceId string, appUrls []string) *Feign {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
 	//v := uint32(time.Now().UnixNano())
-	//appNextUrlIndex[t.app] = &v
-	for app, urls := range appUrls {
-
+	tmpAppUrls := make([]string, 0)
+	for _, appUrl := range appUrls {
 		// reset app'urls
-		tmpAppUrls := make([]string, 0)
-		for _, u := range urls {
-			_, err := url.Parse(u)
-			if err != nil {
-				log.Print("Invalid url=%s, parse err=%s", u, err.Error())
-				continue
-			}
-
-			tmpAppUrls = append(tmpAppUrls, u)
+		_, err := url.Parse(appUrl)
+		if err != nil {
+			log.Print("Invalid url=%s, parse err=%s", appUrl, err.Error())
+			continue
 		}
+		tmpAppUrls = append(tmpAppUrls, appUrl)
 
 		if len(tmpAppUrls) == 0 {
-			log.Print("Empty valid urls for app=%s, skip to set app's urls", app)
+			log.Print("Empty valid urls for app=%s, skip to set app's urls", serviceId)
 			continue
 		}
 
-		t.appUrls[app] = tmpAppUrls
-		if t.appNextUrlIndex[app] == nil {
+		t.appUrlMap[serviceId] = tmpAppUrls
+		if t.appNextUrlIndex[serviceId] == nil {
 			v := uint32(time.Now().UnixNano())
-			t.appNextUrlIndex[app] = &v
+			t.appNextUrlIndex[serviceId] = &v
 		}
 	}
-
 	return t
 }
 
@@ -105,13 +98,13 @@ func (t *Feign) App(app string) *resty.Client {
 			log.Print("no discovery client, no need to update appUrls periodically.")
 			return
 		}
-		instances, err := t.discoveryClient.GetInstances(app)
-		if err == nil || len(instances)==0{
+		instanceArray, err := t.discoveryClient.GetServices()
+		if err != nil || len(instanceArray)==0{
 			log.Print("no discovery client, no need to update appUrls periodically.")
 			return
 		}
 
-		t.updateAppUrlsIntervals(instances)
+		//t.updateAppUrlsIntervals()
 	})
 
 	// try update app's urls.
@@ -127,8 +120,8 @@ func (t *Feign) App(app string) *resty.Client {
 
 // try update app's urls
 // if app's urls is exist, do nothing
-func (t *Feign) tryRefreshAppUrls(app string) {
-	if _, ok := t.GetAppUrls(app); ok {
+func (t *Feign) tryRefreshAppUrls(serviceId string) {
+	if _, ok := t.GetAppUrls(serviceId); ok {
 		return
 	}
 
@@ -142,22 +135,22 @@ func (t *Feign) tryRefreshAppUrls(app string) {
 		return
 	}
 
-	t.updateAppUrls()
+	t.updateAppUrls(serviceId)
 }
 
 // update app urls periodically
-func (t *Feign) updateAppUrlsIntervals(instances []cloud.ServiceInstance) {
+func (t *Feign) updateAppUrlsIntervals(serviceId string) {
 	if t.refreshAppUrlsIntervals <= 0 {
 		t.refreshAppUrlsIntervals = DEFAULT_REFRESH_APP_URLS_INTERVALS
 	}
 
 	go func() {
 		for {
-			t.updateAppUrls()
+			t.updateAppUrls(serviceId)
 
 			time.Sleep(time.Second * time.Duration(t.refreshAppUrlsIntervals))
 			log.Print("Update app urls interval...ok")
-			for app, urls := range t.appUrls {
+			for app, urls := range t.appUrlMap {
 				log.Print("app=> %s, urls => %v", app, urls)
 			}
 
@@ -166,48 +159,47 @@ func (t *Feign) updateAppUrlsIntervals(instances []cloud.ServiceInstance) {
 }
 
 // Update app urls from registry apps
-func (t *Feign) updateAppUrls() {
-	registryServices := t.discoveryClient.GetRegistryServices()
-	tmpAppUrls := make(map[string][]string)
+func (t *Feign) updateAppUrls(serviceId string) {
+	instanceArray, error := t.discoveryClient.GetInstances(serviceId)
+	if error != nil{
+		return
+	}
 
-	for serviceId, serviceInstMap := range registryServices {
-		var isAppAlreadyExist bool
-		var curAppUrls []string
-		var isUpdate bool
-
-		// if app is already exist in t.appUrls, check whether app's urls are updated.
-		// if app's urls are updated, t.appUrls
-		if curAppUrls, isAppAlreadyExist = t.GetAppUrls(serviceId); isAppAlreadyExist {
-			for _, inst := range serviceInstMap {
-				isExist := false
-				for _, v := range curAppUrls {
-					//insHomePageUrl := strings.TrimRight(inst.GetHost(), "/")
-					insHomePageUrl := fmt.Sprintf("%s:%d/", inst.GetHost(), inst.GetPort())
-					if v == insHomePageUrl {
-						isExist = true
-						break
-					}
-				}
-
-				if !isExist {
-					isUpdate = true
+	var isAppAlreadyExist bool
+	var curAppUrls []string
+	var isUpdate bool
+	// if app is already exist in t.appUrls, check whether app's urls are updated.
+	// if app's urls are updated, t.appUrls
+	if curAppUrls, isAppAlreadyExist = t.GetAppUrls(serviceId); isAppAlreadyExist {
+		for _, inst := range instanceArray {
+			isExist := false
+			for _, v := range curAppUrls {
+				insHomePageUrl := fmt.Sprintf("http://%s:%d", inst.GetHost(), inst.GetPort())
+				if v == insHomePageUrl {
+					isExist = true
 					break
 				}
 			}
-		}
 
-		// app are not exist in t.appUrls or app's urls has been update
-		if !isAppAlreadyExist || isUpdate {
-			tmpAppUrls[serviceId] = make([]string, 0)
-			for _, insVo := range serviceInstMap {
-				insHomePageUrl := fmt.Sprintf("%s:%d/", insVo.GetHost(), insVo.GetPort())
-				tmpAppUrls[serviceId] = append(tmpAppUrls[serviceId], insHomePageUrl)
+			if !isExist {
+				isUpdate = true
+				break
 			}
 		}
 	}
 
+	tmpAppUrls := make([]string, 0)
+	// app are not exist in t.appUrls or app's urls has been update
+	if !isAppAlreadyExist || isUpdate {
+		for _, insVo := range instanceArray {
+			insHomePageUrl := fmt.Sprintf("http://%s:%d", insVo.GetHost(), insVo.GetPort())
+			tmpAppUrls = append(tmpAppUrls, insHomePageUrl)
+		}
+
+	}
+
 	// update app's urls to feign
-	t.UseUrls(tmpAppUrls)
+	t.UseUrls(serviceId, tmpAppUrls)
 }
 
 // get app's urls
@@ -215,9 +207,9 @@ func (t *Feign) GetAppUrls(app string) ([]string, bool) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 
-	if _, ok := t.appUrls[app]; !ok {
+	if _, ok := t.appUrlMap[app]; !ok {
 		return nil, false
 	}
 
-	return t.appUrls[app], true
+	return t.appUrlMap[app], true
 }
