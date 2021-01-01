@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DEFAULT_REFRESH_APP_URLS_INTERVALS = 30
+	DEFAULT_REFRESH_APP_URLS_INTERVALS = 120
 )
 
 var DefaultFeign = &Feign{
