@@ -1,9 +1,12 @@
+/**
+* @Author: mo tan
+* @Description:
+* @Date 2021/1/1 21:58
+ */
 package logger
 
 import (
-	_ "fmt"
 	"github.com/gin-gonic/gin"
-	_ "github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
