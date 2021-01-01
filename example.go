@@ -9,10 +9,8 @@ import (
 	"github.com/maotan/go-truffle/cloud"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
 	"github.com/maotan/go-truffle/feign"
-	"github.com/maotan/go-truffle/logger"
 	"github.com/maotan/go-truffle/routes"
 	"github.com/maotan/go-truffle/util"
-	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"time"
 )
@@ -36,8 +34,7 @@ func main() {
 
 	registryDiscoveryClient.Register(si)
 
-	logger.ConfigLocalFileLogger()
-	log.Info("1111111:", 123)
+	//logger.ConfigLocalFileLogger()
 	err = routes.Run()
 	if err != nil{
 		registryDiscoveryClient.Deregister()
