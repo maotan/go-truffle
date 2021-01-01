@@ -42,12 +42,13 @@ func writer(logPath string, level string) *rotatelogs.RotateLogs {
 func LogerMiddleware() gin.HandlerFunc {
 	lfHook := lfshook.NewHook(lfshook.WriterMap{
 		log.DebugLevel: writer(sysLogPath, "debug"),
-		log.InfoLevel:   writer(sysLogPath, "info"),
-		log.WarnLevel:   writer(sysLogPath, "warn"),
-		log.ErrorLevel:  writer(sysLogPath, "error"),
+		log.InfoLevel:  writer(sysLogPath, "info"),
+		log.WarnLevel:  writer(sysLogPath, "warn"),
+		log.ErrorLevel: writer(sysLogPath, "error"),
 		log.FatalLevel: writer(sysLogPath, "fatal"),
 		log.PanicLevel: writer(sysLogPath, "panic"),
 	},&log.TextFormatter{DisableColors: true})
+	// &logger.MineFormatter{}
 	log.AddHook(lfHook)
 
 	return func(c *gin.Context) {
