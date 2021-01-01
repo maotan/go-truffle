@@ -37,7 +37,7 @@ func main() {
 	registryDiscoveryClient.Register(si)
 
 	logger.ConfigLocalFileLogger()
-	log.Info("1111111%s", 123)
+	log.Info("1111111:", 123)
 	err = routes.Run()
 	if err != nil{
 		registryDiscoveryClient.Deregister()

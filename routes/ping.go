@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/maotan/go-truffle/truffle"
 	"net/http"
-
 	"github.com/gin-gonic/gin"
 )
 type Person struct {
@@ -19,7 +18,6 @@ func test() (int, error) {
 
 func addPingRoutes(rg *gin.RouterGroup) {
 	ping := rg.Group("/ping")
-
 	ping.GET("/", func(c *gin.Context) {
 		//panic(truffle.NewWarnError(500,"12345"))
 		test()

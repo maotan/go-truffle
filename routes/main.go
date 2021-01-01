@@ -2,8 +2,6 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/maotan/go-truffle/logger"
-
 	"github.com/maotan/go-truffle/truffle"
 )
 
@@ -13,7 +11,7 @@ var (
 
 // Run will start the server
 func Run() error{
-	router.Use(logger.LogerMiddleware())
+	//router.Use(logger.LogerMiddleware())
 	router.Use(truffle.Recover)
 	getRoutes()
 	return router.Run(":5000")

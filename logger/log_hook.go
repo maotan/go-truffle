@@ -82,7 +82,17 @@ func LogerMiddleware() gin.HandlerFunc {
 
 //切割日志和清理过期日志
 func ConfigLocalFileLogger() {
-	writer := writer(logPath, "info")
-	log.SetOutput(writer)
+	/*writer := writer(logPath, "info")
+	log.SetOutput(writer)*/
 	log.SetLevel(log.InfoLevel)
+	lfHook := lfshook.NewHook(lfshook.WriterMap{
+		log.DebugLevel: writer(logPath, "debug"), // 为不同级别设置不同的输出目的
+		log.InfoLevel:  writer(logPath, "info"),
+		log.WarnLevel:  writer(logPath, "warn"),
+		log.ErrorLevel: writer(logPath, "error"),
+		log.FatalLevel: writer(logPath, "fatal"),
+		log.PanicLevel: writer(logPath, "panic"),
+	}, &MineFormatter{})
+
+	log.AddHook(lfHook)
 }
