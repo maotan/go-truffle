@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	//logger.ConfigLocalFilesystemLogger1("E:/go-log/log")
+	//log.Info("1111111%s", 123)
 	host := "127.0.0.1"
 	port := 8500
 	token := ""
@@ -27,7 +29,6 @@ func main() {
 		false, map[string]string{"user": "zyn2"}, "")
 
 	registryDiscoveryClient.Register(si)
-
 	err = routes.Run()
 	if err != nil{
 		registryDiscoveryClient.Deregister()
