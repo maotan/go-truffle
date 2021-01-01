@@ -3,7 +3,7 @@ package feign
 
 import (
 	"github.com/go-resty/resty/v2"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"sync/atomic"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/url"
 	"sync"
 	"time"
