@@ -4,15 +4,17 @@ import (
 	"github.com/maotan/go-truffle/cloud"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
 	"github.com/maotan/go-truffle/feign"
+	"github.com/maotan/go-truffle/logger"
 	"github.com/maotan/go-truffle/routes"
 	"github.com/maotan/go-truffle/util"
+	log "github.com/sirupsen/logrus"
 	"math/rand"
 	"time"
 )
 
 func main() {
-	//logger.ConfigLocalFilesystemLogger1("E:/go-log/log")
-	//log.Info("1111111%s", 123)
+	logger.ConfigLocalFileLogger()
+	log.Info("1111111%s", 123)
 	host := "127.0.0.1"
 	port := 8500
 	token := ""
