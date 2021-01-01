@@ -23,7 +23,6 @@ func Init(discoveryClient serviceregistry.DiscoveryClient){
 	DefaultFeign.discoveryClient = discoveryClient
 }
 
-
 type Feign struct {
 	// Discovery client to get Apps and instances
 	discoveryClient serviceregistry.DiscoveryClient
@@ -44,10 +43,10 @@ type Feign struct {
 }
 
 // use discovery client to get all registry app => instances
-func (t *Feign) UseDiscoveryClient(client serviceregistry.DiscoveryClient) *Feign {
+/*func (t *Feign) UseDiscoveryClient(client serviceregistry.DiscoveryClient) *Feign {
 	t.discoveryClient = client
 	return t
-}
+}*/
 
 // assign static app => urls
 func (t *Feign) UseUrls(serviceId string, appUrls []string) *Feign {
@@ -98,13 +97,7 @@ func (t *Feign) App(app string) *resty.Client {
 			log.Print("no discovery client, no need to update appUrls periodically.")
 			return
 		}
-		instanceArray, err := t.discoveryClient.GetServices()
-		if err != nil || len(instanceArray)==0{
-			log.Print("no discovery client, no need to update appUrls periodically.")
-			return
-		}
-
-		//t.updateAppUrlsIntervals()
+		t.updateAppUrlsIntervals()
 	})
 
 	// try update app's urls.
@@ -139,14 +132,21 @@ func (t *Feign) tryRefreshAppUrls(serviceId string) {
 }
 
 // update app urls periodically
-func (t *Feign) updateAppUrlsIntervals(serviceId string) {
+func (t *Feign) updateAppUrlsIntervals() {
 	if t.refreshAppUrlsIntervals <= 0 {
 		t.refreshAppUrlsIntervals = DEFAULT_REFRESH_APP_URLS_INTERVALS
 	}
 
 	go func() {
 		for {
-			t.updateAppUrls(serviceId)
+			serviceArray, err := t.discoveryClient.GetServices()
+			if err != nil || len(serviceArray)==0{
+				log.Print("no discovery client, no need to update appUrls periodically.")
+				return
+			}
+			for _, serviceId := range(serviceArray){
+				t.updateAppUrls(serviceId)
+			}
 
 			time.Sleep(time.Second * time.Duration(t.refreshAppUrlsIntervals))
 			log.Print("Update app urls interval...ok")
