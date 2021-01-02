@@ -9,6 +9,7 @@ type BaseResult struct {
 	Code int
 	Msg string
 	TipMsg string
+	TraceId string
 	Data interface{}
 }
 
