@@ -10,20 +10,20 @@ import (
 	"io/ioutil"
 )
 
-type GinConfig struct {
-	GinActive  string     `mapstructure:"gin-active" json:"ginActive" yaml:"gin-active"`
+type ActiveConfig struct {
+	Active  string     `mapstructure:"active" json:"active" yaml:"active"`
 }
 
-type BootstrapConfig struct{
-	GinConf GinConfig `mapstructure:"gin" json:"gin" yaml:"gin"`
+type GinActiveConfig struct{
+	ActiveConf ActiveConfig `mapstructure:"gin" json:"gin" yaml:"gin"`
 }
 
-func (this *BootstrapConfig) DefaultGinConfig() {
-	ginConf := GinConfig{GinActive: "local"}
-	this.GinConf = ginConf
+func (this *GinActiveConfig) DefaultGinConfig() {
+	activeConf := ActiveConfig{Active: "local"}
+	this.ActiveConf = activeConf
 }
 
-func (this *BootstrapConfig) InitGinConfig(path string) {
+func (this *GinActiveConfig) InitGinConfig(path string) {
 	this.DefaultGinConfig()
 	file, _ := ioutil.ReadFile(path)
 	if err := yaml.Unmarshal(file, this); err != nil {
