@@ -26,7 +26,7 @@ func init()  {
 	if yaml_config.YamlConf.LogConf.LogPath != ""{
 		logPath = yaml_config.YamlConf.LogConf.LogPath
 	}
-	//ConfigLocalFileLogger()
+	ConfigLocalFileLogger()
 }
 
 func writer(logPath string, level string) *rotatelogs.RotateLogs {
@@ -48,7 +48,7 @@ func writer(logPath string, level string) *rotatelogs.RotateLogs {
 }
 
 func LogerMiddleware() gin.HandlerFunc {
-	lfHook := lfshook.NewHook(lfshook.WriterMap{
+	/*lfHook := lfshook.NewHook(lfshook.WriterMap{
 		log.DebugLevel: writer(logPath, "debug"),
 		log.InfoLevel:  writer(logPath, "info"),
 		log.WarnLevel:  writer(logPath, "warn"),
@@ -56,8 +56,8 @@ func LogerMiddleware() gin.HandlerFunc {
 		log.FatalLevel: writer(logPath, "fatal"),
 		log.PanicLevel: writer(logPath, "panic"),
 	}, &MineFormatter{})
-	// &MineFormatter{}  log.TextFormatter{DisableColors: true}
-	log.AddHook(lfHook)
+	// &MineFormatter{}  &log.TextFormatter{DisableColors: true}
+	log.AddHook(lfHook)*/
 
 	return func(c *gin.Context) {
 		//开始时间
@@ -100,6 +100,6 @@ func ConfigLocalFileLogger() {
 		log.ErrorLevel: writer(logPath, "error"),
 		log.FatalLevel: writer(logPath, "fatal"),
 		log.PanicLevel: writer(logPath, "panic"),
-	}, &MineFormatter{})
+	}, &log.TextFormatter{DisableColors: true})
 	log.AddHook(lfHook)
 }
