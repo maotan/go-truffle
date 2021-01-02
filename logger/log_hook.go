@@ -8,6 +8,7 @@ package logger
 import (
 	"github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	"github.com/maotan/go-truffle/yaml_config"
 	"github.com/rifflock/lfshook"
 	log "github.com/sirupsen/logrus"
 	"path"
@@ -15,21 +16,29 @@ import (
 )
 
 var (
-	logPath = "E:/go-log"
-	FileSuffix = ".log"
-	RotationTime = time.Hour * 24
-	RotationCount uint = 8
+	logPath = "./"
+	fileSuffix = ".log"
+	rotationTime = time.Hour * 24
+	rotationCount uint = 8
 )
+
+func init()  {
+	if yaml_config.YamlConf.LogConf.LogPath != ""{
+		logPath = yaml_config.YamlConf.LogConf.LogPath
+	}
+	//ConfigLocalFileLogger()
+}
+
 func writer(logPath string, level string) *rotatelogs.RotateLogs {
 	logFullPath := path.Join(logPath, level)
 	var cstSh, _ = time.LoadLocation("Asia/Shanghai") //上海
-	fileSuffix := time.Now().In(cstSh).Format("2006-01-02") + FileSuffix
+	fileSuffix := time.Now().In(cstSh).Format("2006-01-02") + fileSuffix
 
 	logier, err := rotatelogs.New(
 		logFullPath+"-"+fileSuffix,
 		//rotatelogs.WithLinkName(logFullPath),      // 生成软链，指向最新日志文件
-		rotatelogs.WithRotationCount(RotationCount),   // 文件最大保存份数
-		rotatelogs.WithRotationTime(RotationTime), // 日志切割时间间隔
+		rotatelogs.WithRotationCount(rotationCount), // 文件最大保存份数
+		rotatelogs.WithRotationTime(rotationTime),   // 日志切割时间间隔
 	)
 
 	if err != nil {
@@ -46,8 +55,8 @@ func LogerMiddleware() gin.HandlerFunc {
 		log.ErrorLevel: writer(logPath, "error"),
 		log.FatalLevel: writer(logPath, "fatal"),
 		log.PanicLevel: writer(logPath, "panic"),
-	},&log.TextFormatter{DisableColors: true})
-	// &logger.MineFormatter{}
+	}, &MineFormatter{})
+	// &MineFormatter{}  log.TextFormatter{DisableColors: true}
 	log.AddHook(lfHook)
 
 	return func(c *gin.Context) {
@@ -75,7 +84,7 @@ func LogerMiddleware() gin.HandlerFunc {
 			"client_ip":    clientIP,
 			"req_method":   reqMethod,
 			"req_uri":      reqUrl,
-		}).Info()
+		}).Debug()
 	}
 }
 
@@ -92,6 +101,5 @@ func ConfigLocalFileLogger() {
 		log.FatalLevel: writer(logPath, "fatal"),
 		log.PanicLevel: writer(logPath, "panic"),
 	}, &MineFormatter{})
-
 	log.AddHook(lfHook)
 }
