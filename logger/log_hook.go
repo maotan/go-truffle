@@ -16,7 +16,6 @@ import (
 
 var (
 	logPath = "E:/go-log"
-	sysLogPath = "E:/go-log/system"
 	FileSuffix = ".log"
 	RotationTime = time.Hour * 24
 	RotationCount uint = 8
