@@ -14,16 +14,16 @@ type ActiveConfig struct {
 	Active  string     `mapstructure:"active" json:"active" yaml:"active"`
 }
 
-type GinActiveConfig struct{
+type GinConfig struct{
 	ActiveConf ActiveConfig `mapstructure:"gin" json:"gin" yaml:"gin"`
 }
 
-func (this *GinActiveConfig) DefaultGinConfig() {
+func (this *GinConfig) DefaultGinConfig() {
 	activeConf := ActiveConfig{Active: "local"}
 	this.ActiveConf = activeConf
 }
 
-func (this *GinActiveConfig) InitGinConfig(path string) {
+func (this *GinConfig) InitGinConfig(path string) {
 	this.DefaultGinConfig()
 	file, _ := ioutil.ReadFile(path)
 	if err := yaml.Unmarshal(file, this); err != nil {
