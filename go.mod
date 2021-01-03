@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/armon/go-metrics v0.3.5-0.20201104215618-6fd5a4ddf425 // indirect
+	github.com/gin-contrib/sessions v0.0.3 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-resty/resty/v2 v2.3.0
 	github.com/golang/protobuf v1.3.5 // indirect
