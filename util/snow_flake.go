@@ -58,3 +58,8 @@ func (w *Worker) GenId() int64 {
 	ID := int64((now-startTime)<<timeShift | (w.workerId << workerShift) | (w.number))
 	return ID
 }
+
+var worker *Worker = &Worker{timestamp: 0, workerId:  1, number:    0,}
+func GenSnowFlakeId() int64 {
+	return worker.GenId()
+}
