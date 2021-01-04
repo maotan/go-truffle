@@ -2,9 +2,7 @@ package cloud
 
 import (
 	"github.com/maotan/go-truffle/util"
-	"math/rand"
 	"strconv"
-	"time"
 )
 
 type ServiceInstance interface {
@@ -49,7 +47,8 @@ func NewDefaultServiceInstance(serviceId string, host string, port int, secure b
 	}
 
 	if len(instanceId) == 0 {
-		instanceId = serviceId + "-" + strconv.FormatInt(time.Now().Unix(), 10) + "-" + strconv.Itoa(rand.Intn(9000)+1000)
+		//instanceId = serviceId + "-" + strconv.FormatInt(time.Now().Unix(), 10) + "-" + strconv.Itoa(rand.Intn(9000)+1000)
+		instanceId = serviceId + "-" + host + ":" + strconv.Itoa(port)
 	}
 
 	return &DefaultServiceInstance{InstanceId: instanceId, ServiceId: serviceId, Host: host, Port: port, Secure: secure, Metadata: metadata}, nil
