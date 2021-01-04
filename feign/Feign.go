@@ -127,8 +127,8 @@ func (t *Feign) tryRefreshAppUrls(serviceId string) {
 		log.Print("no discovery client, no need to update app'urls.")
 		return
 	}
-	instances,err := t.discoveryClient.GetServices()
-	if (err != nil || len(instances) == 0){
+	services,err := t.discoveryClient.GetServices()
+	if (err != nil || len(services) == 0){
 		log.Print("no discovery client, no need to update app'urls.")
 		return
 	}
