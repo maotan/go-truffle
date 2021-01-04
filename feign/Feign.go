@@ -166,7 +166,7 @@ func (t *Feign) updateAppUrlsIntervals() {
 // Update app urls from registry apps
 func (t *Feign) updateAppUrls(serviceId string) {
 	instanceArray, error := t.discoveryClient.GetInstances(serviceId)
-	if error != nil{
+	if error != nil {
 		return
 	}
 
@@ -175,36 +175,44 @@ func (t *Feign) updateAppUrls(serviceId string) {
 	var isUpdate bool
 	// if app is already exist in t.appUrls, check whether app's urls are updated.
 	// if app's urls are updated, t.appUrls
-	if curAppUrls, isAppAlreadyExist = t.GetAppUrls(serviceId); isAppAlreadyExist {
-		for _, inst := range instanceArray {
-			isExist := false
-			for _, v := range curAppUrls {
-				insHomePageUrl := fmt.Sprintf("http://%s:%d", inst.GetHost(), inst.GetPort())
-				if v == insHomePageUrl {
-					isExist = true
+	curAppUrls, isAppAlreadyExist = t.GetAppUrls(serviceId)
+	if !isAppAlreadyExist {
+		if instanceArray == nil || len(instanceArray) == 0{
+			return ;
+		}
+	} else {
+		if len(curAppUrls) != len(instanceArray){
+			isUpdate = true
+		} else {
+			for _, inst := range instanceArray {
+				isExist := false
+				for _, v := range curAppUrls {
+					insHomePageUrl := fmt.Sprintf("http://%s:%d", inst.GetHost(), inst.GetPort())
+					if v == insHomePageUrl {
+						isExist = true
+						break
+					}
+				}
+
+				if !isExist {
+					isUpdate = true
 					break
 				}
 			}
-
-			if !isExist {
-				isUpdate = true
-				break
-			}
 		}
+
 	}
 
-	tmpAppUrls := make([]string, 0)
 	// app are not exist in t.appUrls or app's urls has been update
 	if !isAppAlreadyExist || isUpdate {
+		tmpAppUrls := make([]string, 0)
 		for _, insVo := range instanceArray {
 			insHomePageUrl := fmt.Sprintf("http://%s:%d", insVo.GetHost(), insVo.GetPort())
 			tmpAppUrls = append(tmpAppUrls, insHomePageUrl)
 		}
-
+		// update app's urls to feign
+		t.UseUrls(serviceId, tmpAppUrls)
 	}
-
-	// update app's urls to feign
-	t.UseUrls(serviceId, tmpAppUrls)
 }
 
 // get app's urls

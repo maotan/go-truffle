@@ -6,7 +6,6 @@ import (
 	"github.com/hashicorp/consul/api"
 	"github.com/maotan/go-truffle/cloud"
 	"strconv"
-	"unsafe"
 )
 
 type consulServiceRegistry struct {
@@ -31,12 +30,14 @@ func (c *consulServiceRegistry) GetInstances(serviceId string) ([]cloud.ServiceI
 		}
 		return result, nil
 	}
-	return nil, nil
+	result := make([]cloud.ServiceInstance, 0)
+	return result, nil
 }
 
 func (c *consulServiceRegistry) GetServices() ([]string, error) {
 	services, _, _ := c.client.Catalog().Services(nil)
-	result := make([]string, unsafe.Sizeof(services))
+	//result := make([]string, unsafe.Sizeof(services))
+	result := make([]string, len(services))
 	index := 0
 	for serviceName, _ := range services {
 		result[index] = serviceName
