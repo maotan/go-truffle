@@ -44,7 +44,7 @@ func GetConfig(out interface{}) (errRes error) {
 		panic("config.yaml未配置正确")
 	}
 
-	configFileName := fmt.Sprintf("%s%s%s", "config-", ginConf.ActiveConf.Active, ".yaml")
+	configFileName := fmt.Sprintf("%s-%s.%s", "config", ginConf.ActiveConf.Active, "yaml")
 	configFilePath := path.Join(configDir, configFileName)
 	_, ef := os.Stat(configFilePath)
 	if ef != nil {
