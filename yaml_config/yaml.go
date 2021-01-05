@@ -9,61 +9,48 @@ import (
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
+	"os"
 	"path"
 )
-type LogConfig struct {
-	LogPath  string      `mapstructure:"log-path" json:"logPath" yaml:"log-path"`
-	RotationCount uint   `mapstructure:"rotation-count" json:"rotationCount" yaml:"rotation-count"`
-}
-
-type ServerConfig struct {
-	Port int
-	Name string
-}
-
-type ConsulConfig struct {
-	Host string
-	Port int
-	Token string
-}
-
-type DatabaseConfig struct {
-	Type string		`mapstructure:"type" json:"type" yaml:"type"`
-	Host string		`mapstructure:"host" json:"host" yaml:"host"`
-	Port string		`mapstructure:"port" json:"port" yaml:"port"`
-	Username string 	`mapstructure:"username" json:"username" yaml:"username"`
-	Password string		`mapstructure:"password" json:"password" yaml:"password"`
-}
-
-type YamlConfig struct {
-	//存放各个配置文件的路径 Path
-	LogConf LogConfig `mapstructure:"log" json:"log" yaml:"log"`
-	ServerConf ServerConfig `mapstructure:"server" json:"server" yaml:"server"`
-	ConsulConf ConsulConfig `mapstructure:"consul" json:"consul" yaml:"consul"`
-	DatabaseConf DatabaseConfig `mapstructure:"database" json:"database" yaml:"database"`
-}
 
 var YamlConf YamlConfig
+var configDir = "config/"
 
 func init()  {
-	NewYamlConfig("config/")
-}
-
-func NewYamlConfig (configPath string) YamlConfig{
-	//var config YamlConfig
-	ginConfigPath := path.Join(configPath, "config.yaml")
-	var ginConf GinConfig;
-	ginConf.InitGinConfig(ginConfigPath)
-	if ginConf.ActiveConf.Active == ""{
-		panic("未配置config.yaml")
-	}
-	configFileName := fmt.Sprintf("%s%s%s", "config-", ginConf.ActiveConf.Active, ".yaml")
-	fullPath := path.Join(configPath, configFileName)
-
-	file, _ := ioutil.ReadFile(fullPath)
-	if err := yaml.Unmarshal(file, &YamlConf); err != nil {
+	err:=GetConfig(&YamlConf)
+	if err!=nil{
 		panic(err)
 	}
-	return YamlConf
 }
 
+func getConfigActive(filePath string, out interface{}) (errRes error){
+	_, err := os.Stat(filePath)
+	if err != nil{
+		return err
+	}
+	file, _ := ioutil.ReadFile(filePath)
+	err = yaml.Unmarshal(file, out)
+	return err
+}
+
+func GetConfig(out interface{}) (errRes error) {
+	activeConfigPath := path.Join(configDir, "config.yaml")
+	var ginConf GinConfig;
+	err := getConfigActive(activeConfigPath, &ginConf)
+	if err != nil {
+		panic(err)
+	}
+	if (ginConf.ActiveConf.Active == "") {
+		panic("config.yaml未配置正确")
+	}
+
+	configFileName := fmt.Sprintf("%s%s%s", "config-", ginConf.ActiveConf.Active, ".yaml")
+	configFilePath := path.Join(configDir, configFileName)
+	_, ef := os.Stat(configFilePath)
+	if ef != nil {
+		panic(ef)
+	}
+	file, _ := ioutil.ReadFile(configFilePath)
+	err = yaml.Unmarshal(file, out)
+	return err
+}
