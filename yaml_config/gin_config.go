@@ -43,7 +43,6 @@ type DatabaseConfig struct {
 
 // ----- total config
 type YamlConfig struct {
-	//存放各个配置文件的路径 Path
 	LogConf LogConfig `mapstructure:"log" json:"log" yaml:"log"`
 	ServerConf ServerConfig `mapstructure:"server" json:"server" yaml:"server"`
 	ConsulConf ConsulConfig `mapstructure:"consul" json:"consul" yaml:"consul"`
