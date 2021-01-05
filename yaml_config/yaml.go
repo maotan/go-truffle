@@ -28,7 +28,7 @@ type ConsulConfig struct {
 }
 
 type DatabaseConfig struct {
-	Name string		`mapstructure:"name" json:"name" yaml:"name"`
+	Type string		`mapstructure:"type" json:"type" yaml:"type"`
 	Host string		`mapstructure:"host" json:"host" yaml:"host"`
 	Port string		`mapstructure:"port" json:"port" yaml:"port"`
 	Username string 	`mapstructure:"username" json:"username" yaml:"username"`
