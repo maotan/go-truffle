@@ -6,6 +6,7 @@
 package logger
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/maotan/go-truffle/yaml_config"
@@ -17,6 +18,7 @@ import (
 
 var (
 	logPath = "./"
+	serverName = ""
 	fileSuffix = ".log"
 	rotationTime = time.Hour * 24
 	rotationCount uint = 8
@@ -26,11 +28,15 @@ func init()  {
 	if yaml_config.YamlConf.LogConf.LogPath != ""{
 		logPath = yaml_config.YamlConf.LogConf.LogPath
 	}
+	if yaml_config.YamlConf.ServerConf.Name != ""{
+		serverName = yaml_config.YamlConf.ServerConf.Name
+	}
 	ConfigLocalFileLogger()
 }
 
 func writer(logPath string, level string) *rotatelogs.RotateLogs {
-	logFullPath := path.Join(logPath, level)
+	appLevel := fmt.Sprintf("%s-%s", serverName, level)
+	logFullPath := path.Join(logPath, appLevel)
 	var cstSh, _ = time.LoadLocation("Asia/Shanghai") //上海
 	fileSuffix := time.Now().In(cstSh).Format("2006-01-02") + fileSuffix
 
