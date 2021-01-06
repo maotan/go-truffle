@@ -6,6 +6,7 @@
 package truffle
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"net/http"
@@ -16,7 +17,8 @@ func Recover(c *gin.Context) {
 	defer func() {
 		if r := recover(); r != nil {
 			//打印错误堆栈信息
-			log.Printf("panic: %v\n", r)
+			msg := fmt.Sprintf("panic: %v\n", r)
+			log.Info(msg)
 			debug.PrintStack()
 			//封装通用json返回
 			//c.JSON(http.StatusOK, Result.Fail(errorToString(r)))

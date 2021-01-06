@@ -25,7 +25,7 @@ type Lbc struct {
 func (t *Lbc) pickUrl() string {
 	urls, ok := t.feign.GetAppUrls(t.app)
 	if !ok || len(urls) == 0 {
-		log.Printf("Failed to pick server, reason: no available urls for app=%s", t.app)
+		log.Infof("Failed to pick server, reason: no available urls for app=%s", t.app)
 
 		// no need to panic
 		// coz return empty string won't panic while calls like "DefaultFeign.App("APP_NAME").R().Post()"
@@ -45,6 +45,6 @@ func (t *Lbc) pickUrl() string {
 func (t *Lbc) pick() *Lbc {
 	t.client = resty.New()
 	t.client.HostURL = t.pickUrl()
-	log.Printf("Picked url=%s", t.client.HostURL)
+	log.Infof("Picked url=%s", t.client.HostURL)
 	return t
 }

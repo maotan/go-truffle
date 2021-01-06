@@ -64,13 +64,15 @@ func (t *Feign) UseUrls(serviceId string, appUrls []string) *Feign {
 		// reset app'urls
 		_, err := url.Parse(appUrl)
 		if err != nil {
-			log.Print("Invalid url=%s, parse err=%s", appUrl, err.Error())
+			msg := fmt.Sprintf("Invalid url=%s, parse err=%s", appUrl, err.Error())
+			log.Info(msg)
 			continue
 		}
 		tmpAppUrls = append(tmpAppUrls, appUrl)
 
 		if len(tmpAppUrls) == 0 {
-			log.Print("Empty valid urls for app=%s, skip to set app's urls", serviceId)
+			info := fmt.Sprintf("Empty valid urls for app=%s, skip to set app's urls", serviceId)
+			log.Info(info)
 			continue
 		}
 
@@ -91,7 +93,8 @@ func (t *Feign) SetRefreshAppUrlsIntervals(intervals int) {
 func (t *Feign) App(app string) *resty.Client {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Print("App(%s) catch panic err=%v", app, err)
+			info := fmt.Sprintf("App(%s) catch panic err=%v", app, err)
+			log.Info(info)
 		}
 	}()
 
@@ -99,7 +102,7 @@ func (t *Feign) App(app string) *resty.Client {
 	// only execute once globally
 	t.once.Do(func() {
 		if t.discoveryClient == nil {
-			log.Print("no discovery client, no need to update appUrls periodically.")
+			log.Info("no discovery client, no need to update appUrls periodically.")
 			return
 		}
 		t.updateAppUrlsIntervals()
@@ -124,12 +127,12 @@ func (t *Feign) tryRefreshAppUrls(serviceId string) {
 	}
 
 	if t.discoveryClient == nil  {
-		log.Print("no discovery client, no need to update app'urls.")
+		log.Info("no discovery client, no need to update app'urls.")
 		return
 	}
 	services,err := t.discoveryClient.GetServices()
 	if (err != nil || len(services) == 0){
-		log.Print("no discovery client, no need to update app'urls.")
+		log.Info("no discovery client, no need to update app'urls.")
 		return
 	}
 
@@ -146,7 +149,7 @@ func (t *Feign) updateAppUrlsIntervals() {
 		for {
 			serviceArray, err := t.discoveryClient.GetServices()
 			if err != nil || len(serviceArray)==0{
-				log.Print("no discovery client, no need to update appUrls periodically.")
+				log.Info("no discovery client, no need to update appUrls periodically.")
 				return
 			}
 			for _, serviceId := range(serviceArray){
@@ -154,9 +157,10 @@ func (t *Feign) updateAppUrlsIntervals() {
 			}
 
 			time.Sleep(time.Second * time.Duration(t.refreshAppUrlsIntervals))
-			log.Print("Update app urls interval...ok")
+			log.Info("Update app urls interval...ok")
 			for app, urls := range t.appUrlMap {
-				log.Print("app=> %s, urls => %v", app, urls)
+				info := fmt.Sprintf("app=> %s, urls => %v", app, urls)
+				log.Info(info)
 			}
 
 		}
