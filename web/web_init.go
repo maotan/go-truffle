@@ -18,7 +18,7 @@ import (
 	"github.com/maotan/go-truffle/yaml_config"
 )
 
-func ConsulInit(metaMap map[string]string) (errRes error, serviceRegistry serviceregistry.ServiceRegistry) {
+func ConsulInit(metaMap map[string]string) (serviceRegistry serviceregistry.ServiceRegistry, errRes error) {
 	consulConf :=yaml_config.YamlConf.ConsulConf
 	registryDiscoveryClient, err := serviceregistry.NewConsulServiceRegistry(consulConf.Host,
 		consulConf.Port, consulConf.Token)
@@ -32,7 +32,7 @@ func ConsulInit(metaMap map[string]string) (errRes error, serviceRegistry servic
 	si, _ := cloud.NewDefaultServiceInstance(serverConf.Name, ip,
 		serverConf.Port, false, metaMap, "")
 	registryDiscoveryClient.Register(si)
-	return nil, registryDiscoveryClient
+	return  registryDiscoveryClient, nil
 }
 
 func RouterInit(router *gin.Engine)  {
