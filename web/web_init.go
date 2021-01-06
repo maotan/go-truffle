@@ -6,14 +6,19 @@
 package web
 
 import (
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
 	"github.com/maotan/go-truffle/cloud"
 	"github.com/maotan/go-truffle/cloud/serviceregistry"
 	"github.com/maotan/go-truffle/feign"
+	"github.com/maotan/go-truffle/logger"
+	"github.com/maotan/go-truffle/truffle"
 	"github.com/maotan/go-truffle/util"
 	"github.com/maotan/go-truffle/yaml_config"
 )
 
-func WebInit() (errRes error, serviceRegistry serviceregistry.ServiceRegistry) {
+func ConsulInit() (errRes error, serviceRegistry serviceregistry.ServiceRegistry) {
 	consulConf :=yaml_config.YamlConf.ConsulConf
 	registryDiscoveryClient, err := serviceregistry.NewConsulServiceRegistry(consulConf.Host,
 		consulConf.Port, consulConf.Token)
@@ -28,4 +33,17 @@ func WebInit() (errRes error, serviceRegistry serviceregistry.ServiceRegistry) {
 		false, map[string]string{"user": "zyn2"}, "")
 	registryDiscoveryClient.Register(si)
 	return nil, registryDiscoveryClient
+}
+
+func RouterInit(router *gin.Engine)  {
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("my-session", store))
+	router.Use(logger.LogerMiddleware())
+	router.Use(truffle.Recover)
+
+	router.GET("/actuator/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 }
