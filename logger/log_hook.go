@@ -99,6 +99,7 @@ func ConfigLocalFileLogger() {
 	/*writer := writer(logPath, "info")
 	log.SetOutput(writer)*/
 	log.SetLevel(log.InfoLevel)
+	log.SetReportCaller(true)
 	lfHook := lfshook.NewHook(lfshook.WriterMap{
 		log.DebugLevel: writer(logPath, "debug"), // 为不同级别设置不同的输出目的
 		log.InfoLevel:  writer(logPath, "info"),
