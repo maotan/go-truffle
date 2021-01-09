@@ -47,12 +47,6 @@ type Feign struct {
 	mu sync.RWMutex
 }
 
-// use discovery client to get all registry app => instances
-/*func (t *Feign) UseDiscoveryClient(client serviceregistry.DiscoveryClient) *Feign {
-	t.discoveryClient = client
-	return t
-}*/
-
 // assign static app => urls
 func (t *Feign) UseUrls(serviceId string, appUrls []string) *Feign {
 	t.mu.Lock()
