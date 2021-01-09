@@ -34,9 +34,8 @@ type ConsulConfig struct {
 
 // ------ database config
 type DatabaseConfig struct {
-	Type string		`mapstructure:"type" json:"type" yaml:"type"`
-	Host string		`mapstructure:"host" json:"host" yaml:"host"`
-	Port string		`mapstructure:"port" json:"port" yaml:"port"`
+	Driver string		`mapstructure:"driver" json:"driver" yaml:"driver"`
+	Url string		`mapstructure:"url" json:"url" yaml:"url"`
 	Username string 	`mapstructure:"username" json:"username" yaml:"username"`
 	Password string		`mapstructure:"password" json:"password" yaml:"password"`
 }
