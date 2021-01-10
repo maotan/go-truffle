@@ -83,14 +83,17 @@ func LogerMiddleware() gin.HandlerFunc {
 		//请求ip
 		clientIP := c.ClientIP()
 
-		// 日志格式
-		log.WithFields(log.Fields{
-			"status_code":  statusCode,
-			"latency_time": latencyTime,
-			"client_ip":    clientIP,
-			"req_method":   reqMethod,
-			"req_uri":      reqUrl,
-		}).Debug()
+		if reqUrl!="/actuator/health"{
+			// 日志格式
+			log.WithFields(log.Fields{
+				"status_code":  statusCode,
+				"latency_time": latencyTime,
+				"client_ip":    clientIP,
+				"req_method":   reqMethod,
+				"req_uri":      reqUrl,
+			}).Info()
+		}
+
 	}
 }
 
