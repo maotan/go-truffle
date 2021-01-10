@@ -47,38 +47,6 @@ type Feign struct {
 	mu sync.RWMutex
 }
 
-// assign static app => urls
-func (t *Feign) UseUrls(serviceId string, appUrls []string) *Feign {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
-	//v := uint32(time.Now().UnixNano())
-	tmpAppUrls := make([]string, 0)
-	for _, appUrl := range appUrls {
-		// reset app'urls
-		_, err := url.Parse(appUrl)
-		if err != nil {
-			msg := fmt.Sprintf("Invalid url=%s, parse err=%s", appUrl, err.Error())
-			log.Info(msg)
-			continue
-		}
-		tmpAppUrls = append(tmpAppUrls, appUrl)
-
-		if len(tmpAppUrls) == 0 {
-			info := fmt.Sprintf("Empty valid urls for app=%s, skip to set app's urls", serviceId)
-			log.Info(info)
-			continue
-		}
-
-		t.appUrlMap[serviceId] = tmpAppUrls
-		if t.appNextUrlIndex[serviceId] == nil {
-			v := uint32(time.Now().UnixNano())
-			t.appNextUrlIndex[serviceId] = &v
-		}
-	}
-	return t
-}
-
 func (t *Feign) SetRefreshAppUrlsIntervals(intervals int) {
 	t.refreshAppUrlsIntervals = intervals
 }
@@ -146,9 +114,12 @@ func (t *Feign) updateAppUrlsIntervals() {
 				log.Info("no discovery client, no need to update appUrls periodically.")
 				return
 			}
+			currentServiceMap := make(map[string]bool)
 			for _, serviceId := range(serviceArray){
+				currentServiceMap[serviceId] = true
 				t.updateAppUrls(serviceId)
 			}
+			t.DeleteUrls(currentServiceMap)
 
 			time.Sleep(time.Second * time.Duration(t.refreshAppUrlsIntervals))
 			log.Info("Update app urls interval...ok")
@@ -211,6 +182,50 @@ func (t *Feign) updateAppUrls(serviceId string) {
 		// update app's urls to feign
 		t.UseUrls(serviceId, tmpAppUrls)
 	}
+}
+
+// assign static app => urls
+func (t *Feign) UseUrls(serviceId string, appUrls []string) *Feign {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
+	//v := uint32(time.Now().UnixNano())
+	tmpAppUrls := make([]string, 0)
+	for _, appUrl := range appUrls {
+		// reset app'urls
+		_, err := url.Parse(appUrl)
+		if err != nil {
+			msg := fmt.Sprintf("Invalid url=%s, parse err=%s", appUrl, err.Error())
+			log.Info(msg)
+			continue
+		}
+		tmpAppUrls = append(tmpAppUrls, appUrl)
+
+		if len(tmpAppUrls) == 0 {
+			info := fmt.Sprintf("Empty valid urls for app=%s, skip to set app's urls", serviceId)
+			log.Info(info)
+			continue
+		}
+
+		t.appUrlMap[serviceId] = tmpAppUrls
+		if t.appNextUrlIndex[serviceId] == nil {
+			v := uint32(time.Now().UnixNano())
+			t.appNextUrlIndex[serviceId] = &v
+		}
+	}
+	return t
+}
+// delete unregistered service
+func (t *Feign) DeleteUrls(currentMap map[string]bool) *Feign {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	for serviceId, _ := range t.appUrlMap{
+		_, ok := currentMap[serviceId]
+		if !ok{
+			delete(t.appUrlMap, serviceId)
+		}
+	}
+	return t
 }
 
 // get app's urls

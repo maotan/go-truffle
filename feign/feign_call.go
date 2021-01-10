@@ -5,7 +5,10 @@
  */
 package feign
 
-import "github.com/go-resty/resty/v2"
+import (
+	"github.com/go-resty/resty/v2"
+	"github.com/maotan/go-truffle/truffle"
+)
 
 func GetRequest(appName string) (res *resty.Request) {
 	header := map[string]string{
@@ -16,6 +19,9 @@ func GetRequest(appName string) (res *resty.Request) {
 
 func GetRequestWithHeader(appName string, header map[string]string) (res *resty.Request) {
 	restyClient := DefaultFeign.App(appName)
+	if restyClient.HostURL == ""{
+		panic(truffle.NewWarnError(40401, "service not exist"))
+	}
 	restyReq := restyClient.R().SetHeaders(header)
 	return restyReq
 }
