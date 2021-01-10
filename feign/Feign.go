@@ -222,6 +222,7 @@ func (t *Feign) DeleteUrls(currentMap map[string]bool) *Feign {
 	for serviceId, _ := range t.appUrlMap{
 		_, ok := currentMap[serviceId]
 		if !ok{
+			log.Infof("feign remove service %s", serviceId)
 			delete(t.appUrlMap, serviceId)
 		}
 	}
