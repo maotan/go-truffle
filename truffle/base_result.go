@@ -18,6 +18,11 @@ func Success(data interface{}) BaseResult {
 	return base
 }
 
+func SuccessWithTip(data interface{}, tipMsg string) BaseResult {
+	base := BaseResult{Code: 0, Data:data, TipMsg: tipMsg}
+	return base
+}
+
 func Fail(code int, msg string) BaseResult {
 	base := BaseResult{Code: code, Msg: msg}
 	return base
