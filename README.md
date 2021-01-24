@@ -5,3 +5,4 @@ web frame core for go gin
 https://github.com/zhangyunan1994/lemon
 
 # feign refer
+https://github.com/HikoQiu/go-feign
