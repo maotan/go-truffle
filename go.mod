@@ -1,6 +1,6 @@
 module github.com/maotan/go-truffle
 
-go 1.15
+go 1.16
 
 require (
 	github.com/armon/go-metrics v0.3.5-0.20201104215618-6fd5a4ddf425 // indirect
