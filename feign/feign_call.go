@@ -7,20 +7,20 @@ package feign
 
 import (
 	"github.com/go-resty/resty/v2"
-	"github.com/maotan/go-truffle/truffle"
+	"github.com/maotan/go-truffle/httpresult"
 )
 
 func GetRequest(appName string) (res *resty.Request) {
 	header := map[string]string{
-				"Content-Type": "application/json",
-			}
+		"Content-Type": "application/json",
+	}
 	return GetRequestWithHeader(appName, header)
 }
 
 func GetRequestWithHeader(appName string, header map[string]string) (res *resty.Request) {
 	restyClient := DefaultFeign.App(appName)
-	if restyClient.HostURL == ""{
-		panic(truffle.NewWarnError(40401, "service not exist"))
+	if restyClient.HostURL == "" {
+		panic(httpresult.NewWarnError(40401, "service not exist"))
 	}
 	restyReq := restyClient.R().SetHeaders(header)
 	return restyReq
