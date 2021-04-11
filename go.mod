@@ -9,6 +9,7 @@ require (
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-resty/resty/v2 v2.3.0
 	github.com/go-sql-driver/mysql v1.5.0
+	github.com/goinggo/mapstructure v0.0.0-20140717182941-194205d9b4a9 // indirect
 	github.com/golang/protobuf v1.3.5 // indirect
 	github.com/google/btree v1.0.0 // indirect
 	github.com/hashicorp/consul/api v1.8.1

@@ -6,11 +6,11 @@
 package httpresult
 
 type BaseResult struct {
-	Code    int
-	Msg     string
-	TipMsg  string
-	TraceId string
-	Data    interface{}
+	Code    int         `mapstructure:"code" json:"code"`
+	Msg     string      `mapstructure:"msg" json:"msg"`
+	TipMsg  string      `mapstructure:"tipMsg" json:"tipMsg"`
+	TraceId string      `mapstructure:"traceId" json:"traceId"`
+	Data    interface{} `mapstructure:"data" json:"data"`
 }
 
 func Success(data interface{}) BaseResult {
