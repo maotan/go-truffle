@@ -3,13 +3,14 @@
 * @Description:
 * @Date 2021/1/1 21:58
  */
-package truffle
+package httpresult
 
 import (
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"runtime/debug"
+
+	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func Recover(c *gin.Context) {
