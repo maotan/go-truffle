@@ -40,4 +40,6 @@ const (
 	ParamErrCode = 400
 	// 系统异常编码
 	SystemErrCode = 500
+	// 解码错误
+	DecodeErrCode = 600
 )
