@@ -10,6 +10,36 @@ import (
 	"github.com/maotan/go-truffle/httpresult"
 )
 
+func Head() *httpresult.BaseResult {
+	return nil
+}
+
+func Delete() *httpresult.BaseResult {
+	return nil
+}
+
+func Put() *httpresult.BaseResult {
+	return nil
+}
+
+func Get(appName string, url string) *httpresult.BaseResult {
+	res, err := GetRequest(appName).SetResult(&httpresult.BaseResult{}).Get(url)
+	if err != nil {
+		panic(httpresult.NewWarnError(500, err.Error()))
+	}
+	base := res.Result().(*httpresult.BaseResult)
+	return base
+}
+
+func Post(appName string, url string, body interface{}) *httpresult.BaseResult {
+	res, err := GetRequest(appName).SetBody(body).SetResult(&httpresult.BaseResult{}).Post(url)
+	if err != nil {
+		panic(httpresult.NewWarnError(500, err.Error()))
+	}
+	base := res.Result().(*httpresult.BaseResult)
+	return base
+}
+
 func GetRequest(appName string) (res *resty.Request) {
 	header := map[string]string{
 		"Content-Type": "application/json",
